@@ -2,6 +2,13 @@
   {
     "Id": 1,
     "Nombre": "andres",
-    "Correo": "andres2412@gayau.com"
+    "Correo": "andres2412@gayau.com",
+    "Contrasena": null
+  },
+  {
+    "Id": 2,
+    "Nombre": "andres",
+    "Correo": "andres2412@gmail.com",
+    "Contrasena": "1234"
   }
 ]

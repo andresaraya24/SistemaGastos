@@ -29,10 +29,11 @@ namespace SistemaGastos.Views
         {
             string nombre = txtNombre.Text.Trim();
             string correo = txtCorreo.Text.Trim();
+            string contrasena = txtContrasena.Text.Trim();
 
-            if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(correo))
+            if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
             {
-                MessageBox.Show("Por favor complete ambos campos.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Por favor complete todos los campos.", "Advertencia", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -49,7 +50,7 @@ namespace SistemaGastos.Views
 
             // Crear nuevo usuario con ID incremental
             int nuevoId = (listaUsuarios.Count > 0) ? listaUsuarios.Max(u => u.Id) + 1 : 1;
-            Usuario nuevoUsuario = new Usuario(nuevoId, nombre, correo);
+            Usuario nuevoUsuario = new Usuario(nuevoId, nombre, correo, contrasena);
 
             listaUsuarios.Add(nuevoUsuario);
 
@@ -63,8 +64,9 @@ namespace SistemaGastos.Views
             // Limpiar campos
             txtNombre.Text = "";
             txtCorreo.Text = "";
+            txtContrasena.Text = "";
 
-            // Cargar en DataGridView si existe
+            // Actualizar DataGridView
             CargarUsuarios();
         }
 
@@ -77,6 +79,43 @@ namespace SistemaGastos.Views
                 string json = File.ReadAllText(rutaArchivo);
                 List<Usuario> usuarios = JsonConvert.DeserializeObject<List<Usuario>>(json);
                 dgvUsuarios.DataSource = usuarios;
+            }
+        }
+
+        private void btnIngresar_Click(object sender, EventArgs e)
+        {
+            string correo = txtCorreo.Text.Trim();
+            string contrasena = txtContrasena.Text.Trim();
+
+            if (string.IsNullOrWhiteSpace(correo) || string.IsNullOrWhiteSpace(contrasena))
+            {
+                MessageBox.Show("Por favor, ingrese ambos campos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string rutaArchivo = Path.Combine(Application.StartupPath, @"..\..\Data\usuarios.json");
+            if (!File.Exists(rutaArchivo))
+            {
+                MessageBox.Show("No se encontró el archivo de usuarios.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string json = File.ReadAllText(rutaArchivo);
+            List<Usuario> usuarios = JsonConvert.DeserializeObject<List<Usuario>>(json);
+
+            var usuario = usuarios.FirstOrDefault(u => u.Correo == correo && u.Contrasena == contrasena);
+            if (usuario != null)
+            {
+                MessageBox.Show($"Bienvenido, {usuario.Nombre}", "Acceso concedido", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                // Abre la pantalla principal
+                FrmUsuario frm = new FrmUsuario(); // o FrmPrincipal si ya tenés uno
+                frm.Show();
+                this.Hide();
+            }
+            else
+            {
+                MessageBox.Show("Correo o contraseña incorrectos.", "Acceso denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
